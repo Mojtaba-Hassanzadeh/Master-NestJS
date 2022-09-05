@@ -4,53 +4,60 @@ import {
   Delete,
   Get,
   HttpCode,
+  Injectable,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateEventDto } from './dtos/create-event.dto';
 import { UpdateEventDto } from './dtos/update-event.dto';
-import { Event } from './entities/event.entity';
+import { Event, EventDocument } from './entities/event.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('events')
+@Injectable()
 export class EventsController {
-  private events: Event[] = [];
+  constructor(
+    @InjectModel(Event.name) private eventModel: Model<EventDocument>,
+  ) {}
 
   @Get()
-  findAll() {
-    return this.events;
+  async findAll() {
+    return await this.eventModel.find();
   }
 
   @Get(':id')
-  findOne(@Param('id') id) {
-    const event = this.events.find((event) => event.id === parseInt(id));
-    return event;
+  async findOne(@Param('id') id) {
+    return await this.eventModel.findById(id).exec();
   }
 
   @Post()
-  createEvent(@Body() input: CreateEventDto) {
-    const event = {
-      ...input,
-      when: new Date(input.when),
-      id: this.events.length + 1,
-    };
-    this.events.push(event);
+  async createEvent(@Body() input: CreateEventDto) {
+    const uuid = uuidv4();
+    const newEvent = new this.eventModel(input);
+    newEvent.when = new Date(input.when);
+    newEvent._id = uuid;
+    await newEvent.save();
+    return newEvent;
   }
 
   @Patch(':id')
-  updateEvent(@Param('id') id, @Body() input: UpdateEventDto) {
-    const index = this.events.findIndex((event) => event.id === parseInt(id));
-    this.events[index] = {
-      ...this.events[index],
-      ...input,
-      when: input.when ? new Date(input.when) : this.events[index].when,
-    };
-    return this.events[index];
+  async updateEvent(@Param('id') id, @Body() input: UpdateEventDto) {
+    const event = await this.eventModel
+      .findByIdAndUpdate(
+        id,
+        { ...input, when: input.when ? new Date(input.when) : undefined },
+        { new: true },
+      )
+      .exec();
+    return event;
   }
 
   @Delete(':id')
   @HttpCode(204)
-  removeEvent(@Param('id') id) {
-    this.events = this.events.filter((event) => event.id !== parseInt(id));
+  async removeEvent(@Param('id') id) {
+    return await this.eventModel.findByIdAndDelete(id).exec();
   }
 }

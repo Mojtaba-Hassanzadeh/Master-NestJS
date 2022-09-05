@@ -5,7 +5,7 @@ export type EventDocument = Event & Document;
 @Schema()
 export class Event {
   @Prop()
-  id: number;
+  _id: string;
 
   @Prop()
   name: string;
