@@ -6,6 +6,7 @@ import {
   HttpCode,
   Injectable,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -29,7 +30,7 @@ export class EventsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.eventModel.findById(id).exec();
   }
 
@@ -44,7 +45,10 @@ export class EventsController {
   }
 
   @Patch(':id')
-  async updateEvent(@Param('id') id, @Body() input: UpdateEventDto) {
+  async updateEvent(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() input: UpdateEventDto,
+  ) {
     const event = await this.eventModel
       .findByIdAndUpdate(
         id,
@@ -57,7 +61,7 @@ export class EventsController {
 
   @Delete(':id')
   @HttpCode(204)
-  async removeEvent(@Param('id') id) {
+  async removeEvent(@Param('id', ParseUUIDPipe) id: string) {
     return await this.eventModel.findByIdAndDelete(id).exec();
   }
 }
