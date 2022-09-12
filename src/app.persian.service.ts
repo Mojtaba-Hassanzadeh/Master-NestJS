@@ -9,6 +9,9 @@ export class AppPersianService {
     private readonly message: string,
   ) {}
   getHello(): string {
+    console.log(
+      `${process.env.DB_NAME}://${process.env.DB_HOST}/${process.env.DB_COLLECTION}`,
+    );
     return `سلام عشق من! from ${this.name}, ${this.message}`;
   }
 }
