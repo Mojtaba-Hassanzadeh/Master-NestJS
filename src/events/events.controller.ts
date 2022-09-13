@@ -5,6 +5,8 @@ import {
   Get,
   HttpCode,
   Injectable,
+  Logger,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -20,18 +22,26 @@ import { v4 as uuidv4 } from 'uuid';
 @Controller('events')
 @Injectable()
 export class EventsController {
+  private readonly logger = new Logger(EventsController.name);
   constructor(
     @InjectModel(Event.name) private eventModel: Model<EventDocument>,
   ) {}
 
   @Get()
   async findAll() {
-    return await this.eventModel.find();
+    this.logger.log('Hit the findAll route');
+    const events = await this.eventModel.find();
+    this.logger.debug(`Found ${events.length} events`);
+    return events;
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.eventModel.findById(id).exec();
+    const event = await this.eventModel.findById(id).exec();
+    if (!event) {
+      throw new NotFoundException();
+    }
+    return event;
   }
 
   @Post()
@@ -56,12 +66,19 @@ export class EventsController {
         { new: true },
       )
       .exec();
+    if (!event) {
+      throw new NotFoundException();
+    }
     return event;
   }
 
   @Delete(':id')
   @HttpCode(204)
   async removeEvent(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.eventModel.findByIdAndDelete(id).exec();
+    const event = await this.eventModel.findByIdAndDelete(id).exec();
+    if (!event) {
+      throw new NotFoundException();
+    }
+    return event;
   }
 }
