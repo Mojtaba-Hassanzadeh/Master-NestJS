@@ -1,4 +1,5 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, NotFoundException, forwardRef } from '@nestjs/common';
+import { EventsService } from 'src/events/events.service';
 import { AttendeesRepository } from './attendees.repository';
 import { CreateAttendeeDto } from './dtos/create-attendee.dto';
 import { UpdateAttendeeDto } from './dtos/update-attendee.dto';
@@ -8,7 +9,9 @@ import { Attendee } from './entities/attendee.entity';
 @Injectable()
 export class AttendeesService {
     constructor(
-        private readonly attendeesRepository: AttendeesRepository
+        private readonly attendeesRepository: AttendeesRepository,
+        // @Inject(EventsService)
+        // private readonly eventsService: EventsService
     ) {}
 
     async findAll(): Promise<Attendee[]> {

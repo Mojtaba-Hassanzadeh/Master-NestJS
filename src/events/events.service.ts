@@ -1,4 +1,5 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, NotFoundException, forwardRef } from '@nestjs/common';
+import { AttendeesService } from '../attendees/attendees.service';
 import { CreateEventDto } from './dtos/create-event.dto';
 import { UpdateEventDto } from './dtos/update-event.dto';
 import { Event } from './entities/event.entity';
@@ -8,7 +9,9 @@ import { EventsRepository } from './events.repository';
 @Injectable()
 export class EventsService {
     constructor(
-        private readonly eventsRepository: EventsRepository
+        private readonly eventsRepository: EventsRepository,
+        @Inject(AttendeesService)
+        private readonly attendeesService: AttendeesService
     ) {}
 
     async findAll(): Promise<Event[]> {
@@ -36,6 +39,10 @@ export class EventsService {
 
     async createEvent(input: CreateEventDto): Promise<Event> {
         try {
+            if(input.attendees && input.attendees.length > 0) {
+                // check attendee ids
+                // update attendee event
+            }
             const event = await this.eventsRepository.create(input);
             if (!event) {
                 throw new NotFoundException();
