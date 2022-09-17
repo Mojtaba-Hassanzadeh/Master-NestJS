@@ -18,39 +18,41 @@ import { CreateEventDto } from './dtos/create-event.dto';
 import { UpdateEventDto } from './dtos/update-event.dto';
 import { Event, EventDocument } from './entities/event.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { LazyModuleLoader } from '@nestjs/core';
+import { EventsService } from './events.service';
 
 @Controller('events')
 @Injectable()
 export class EventsController {
   private readonly logger = new Logger(EventsController.name);
   constructor(
-    @InjectModel(Event.name) private eventModel: Model<EventDocument>,
+    private readonly eventsService: EventsService,
+    private lazyModuleLoader: LazyModuleLoader
   ) {}
 
   @Get()
   async findAll() {
     this.logger.log('Hit the findAll route');
-    const events = await this.eventModel.find();
+    const events = await this.eventsService.findAll();
     this.logger.debug(`Found ${events.length} events`);
     return events;
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const event = await this.eventModel.findById(id).exec();
-    if (!event) {
-      throw new NotFoundException();
-    }
+    const event = await this.eventsService.findById(id);
+    // const uuid = uuidv4();
+    // const newAttendee = new this.attendeeModel()
+    // newAttendee._id = uuid 
+    // newAttendee.name = 'Jeery';
+    // // newAttendee.event = event
+    // await newAttendee.save();
     return event;
   }
 
   @Post()
   async createEvent(@Body() input: CreateEventDto) {
-    const uuid = uuidv4();
-    const newEvent = new this.eventModel(input);
-    newEvent.when = new Date(input.when);
-    newEvent._id = uuid;
-    await newEvent.save();
+    const newEvent = await this.eventsService.createEvent(input)
     return newEvent;
   }
 
@@ -59,26 +61,14 @@ export class EventsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() input: UpdateEventDto,
   ) {
-    const event = await this.eventModel
-      .findByIdAndUpdate(
-        id,
-        { ...input, when: input.when ? new Date(input.when) : undefined },
-        { new: true },
-      )
-      .exec();
-    if (!event) {
-      throw new NotFoundException();
-    }
+    const event = await this.eventsService.updateEvent(id, input)
     return event;
   }
 
   @Delete(':id')
   @HttpCode(204)
   async removeEvent(@Param('id', ParseUUIDPipe) id: string) {
-    const event = await this.eventModel.findByIdAndDelete(id).exec();
-    if (!event) {
-      throw new NotFoundException();
-    }
+    const event = await this.eventsService.deleteEvent(id);
     return event;
   }
 }

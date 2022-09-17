@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsDateString, IsString, Length } from 'class-validator';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export type EventDocument = Event & Document;
 @Schema()
@@ -24,6 +24,9 @@ export class Event {
   @Prop()
   @Length(5, 255)
   address: string;
+  
+  // @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendee' }] })
+  // attendees: Attendee[]
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

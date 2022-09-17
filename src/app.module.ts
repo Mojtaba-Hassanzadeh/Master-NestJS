@@ -7,6 +7,7 @@ import { AppPersianService } from './app.persian.service';
 import { AppService } from './app.service';
 import mongoConfig from './config/mongo.config';
 import { EventsModule } from './events/events.module';
+import { AttendeesModule } from './attendees/attendees.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EventsModule } from './events/events.module';
       useFactory: mongoConfig,
     }),
     EventsModule,
+    AttendeesModule,
   ],
   controllers: [AppController],
   providers: [
