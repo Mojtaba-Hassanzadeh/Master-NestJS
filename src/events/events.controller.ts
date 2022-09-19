@@ -27,7 +27,7 @@ export class EventsController {
   private readonly logger = new Logger(EventsController.name);
   constructor(
     private readonly eventsService: EventsService,
-    private lazyModuleLoader: LazyModuleLoader
+    private lazyModuleLoader: LazyModuleLoader,
   ) {}
 
   @Get()
@@ -43,7 +43,7 @@ export class EventsController {
     const event = await this.eventsService.findById(id);
     // const uuid = uuidv4();
     // const newAttendee = new this.attendeeModel()
-    // newAttendee._id = uuid 
+    // newAttendee._id = uuid
     // newAttendee.name = 'Jeery';
     // // newAttendee.event = event
     // await newAttendee.save();
@@ -52,7 +52,7 @@ export class EventsController {
 
   @Post()
   async createEvent(@Body() input: CreateEventDto) {
-    const newEvent = await this.eventsService.createEvent(input)
+    const newEvent = await this.eventsService.createEvent(input);
     return newEvent;
   }
 
@@ -61,7 +61,7 @@ export class EventsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() input: UpdateEventDto,
   ) {
-    const event = await this.eventsService.updateEvent(id, input)
+    const event = await this.eventsService.updateEvent(id, input);
     return event;
   }
 
