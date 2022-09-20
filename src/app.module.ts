@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import mongoConfig from './config/mongo.config';
 import { EventsModule } from './events/events.module';
 import { AttendeesModule } from './attendees/attendees.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AttendeesModule } from './attendees/attendees.module';
     MongooseModule.forRootAsync({
       useFactory: mongoConfig,
     }),
+    AuthModule,
     EventsModule,
     AttendeesModule,
   ],
